@@ -1,9 +1,12 @@
 package helpers
 
 import (
+	"errors"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
@@ -18,7 +21,7 @@ func GenerateToken(id uint, email string) (res string, err error) {
 	}
 
 	// metode enkripsi yang digunakan adalah HS256
-	// method jwt.NewWithClaims digunakan untuk memasukkan data-data user yang kita simpan pada jwt.MapClaims dan sekaligus 
+	// method jwt.NewWithClaims digunakan untuk memasukkan data-data user yang kita simpan pada jwt.MapClaims dan sekaligus
 	// menentukan metode enkripsinya, dan akan mengembalikan sebuah nilai dengan struct *jwt.token
 	parseToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -32,4 +35,43 @@ func GenerateToken(id uint, email string) (res string, err error) {
 	}
 
 	return
+}
+
+func VerifyToken(c *gin.Context) (interface{}, error) {
+
+	// Custom error
+	errResponse := errors.New("Sign in to proceed")
+
+	// mendapatkan nilai dari variable Authorization yang terletak pada headers yang dikirimkan oleh client. dimana setiap client akan
+	// mengirimkan request, yang dimana setiap request endpoint memerlukan autentikasi token, maka client harus mengirimkan dan menyimpannya
+	// dalam headers variable Authorization
+	headerToken := c.Request.Header.Get("Authorization")
+
+	// memeriksa jika token yang dikirimkan memiliki prefix Bearer, token yang dikirim harus berupa Beare Token
+	bearer := strings.HasPrefix(headerToken, "Bearer")
+	if !bearer {
+		return nil, errResponse
+	}
+
+	// pengambilan token tanpa prefix Bearer
+	stringToken := strings.Split(headerToken, " ")[1]
+
+	// mencoba untuk memparsing tokennya menjadi sebuah struct dari *jwt.Token. Kemudian kita memeriksa apakah metode enkripsi dari
+	// tokennya adalah metode HS256 dengan cara mengcasting metodenya menjadi tipe data pointer dari struct jwt.SigningMethodHMAC
+	token, _ := jwt.Parse(stringToken, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errResponse
+		}
+		return []byte(os.Getenv("SECRET_KEY")), nil
+	})
+
+	// memeriksa apakah saat mengcasting claim tokennya menjadi tipe data jwt.MapClaims menghasilkan error atau tidak
+	// sekaligus memeriksa apakah tokennya merupakan token yang valid atau tidak
+	if _, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
+		return nil, errResponse
+	}
+
+	// mengembalikan nilai berupa claim dari tokennya yang dimana claim tersebut berisikan data yang kita simpan pada tokennya
+	// ketika pertama kali dibuat. isinya email dan id user yang sudah berhasil melakukan login
+	return token.Claims.(jwt.MapClaims), nil
 }
