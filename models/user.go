@@ -22,7 +22,7 @@ func (u *User) TableName() string {
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
-	_, errCreate := govalidator.ValidateStruct(u)
+	_, errCreate := govalidator.ValidateStruct(u) // akan mengarah pada field valid
 
 	if errCreate != nil {
 		err = errCreate
