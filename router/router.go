@@ -25,6 +25,10 @@ func StartApp() *gin.Engine {
 		// sebelum melakukan seluruh endpoint, maka harus melewati autentikasi terlebih dahulu atau pengecekan token
 		productRouter.Use(middlewares.Authentication())
 		productRouter.POST("/", controllers.CreateProduct)
+
+		productRouter.PUT("/:productID", middlewares.ProductAuthorization(), controllers.UpdateProduct)
+
+		productRouter.DELETE("/:productID", middlewares.ProductAuthorization(), controllers.DeleteProduct)
 	}
 
 	return r
