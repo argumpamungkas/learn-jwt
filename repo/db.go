@@ -4,17 +4,18 @@ import (
 	"DTS/Chapter-3/sesi/sesi2-go-jwt/models"
 	"fmt"
 	"log"
+	"os"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var (
-	host     = "localhost"
-	user     = "postgres"
-	password = "gume98"
-	port     = "5432"
-	dbname   = "jwt-api"
+	host     = os.Getenv("PGHOST")
+	user     = os.Getenv("PGUSER")
+	password = os.Getenv("PGPASSWORD")
+	port     = os.Getenv("PGPORT")
+	dbname   = os.Getenv("PGDATABASE")
 	db       *gorm.DB
 	err      error
 )
