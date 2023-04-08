@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"DTS/Chapter-3/sesi/sesi2-go-jwt/helpers"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +11,8 @@ import (
 func Authentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		verifyToken, err := helpers.VerifyToken(c)
-		_ = verifyToken
+
+		log.Println("ini verify token", verifyToken)
 
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

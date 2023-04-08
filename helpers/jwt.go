@@ -37,7 +37,7 @@ func GenerateToken(id uint, email string) (res string, err error) {
 	return
 }
 
-func VerifyToken(c *gin.Context) (interface{}, error) {
+func VerifyToken(c *gin.Context) (res interface{}, err error) {
 
 	// Custom error
 	errResponse := errors.New("Sign in to proceed")
@@ -48,12 +48,13 @@ func VerifyToken(c *gin.Context) (interface{}, error) {
 	headerToken := c.Request.Header.Get("Authorization")
 
 	// memeriksa jika token yang dikirimkan memiliki prefix Bearer, token yang dikirim harus berupa Beare Token
-	bearer := strings.HasPrefix(headerToken, "Bearer")
-	if !bearer {
-		return nil, errResponse
+	if !strings.HasPrefix(headerToken, "Bearer") || headerToken == "" {
+		log.Println("Invalid token")
+		err = errors.New(errResponse.Error())
+		return
 	}
 
-	// pengambilan token tanpa prefix Bearer
+	// pengambilan token tanpa prefix Bearer, jadi Beare Token(kode tokennya)
 	stringToken := strings.Split(headerToken, " ")[1]
 
 	// mencoba untuk memparsing tokennya menjadi sebuah struct dari *jwt.Token. Kemudian kita memeriksa apakah metode enkripsi dari
@@ -73,5 +74,7 @@ func VerifyToken(c *gin.Context) (interface{}, error) {
 
 	// mengembalikan nilai berupa claim dari tokennya yang dimana claim tersebut berisikan data yang kita simpan pada tokennya
 	// ketika pertama kali dibuat. isinya email dan id user yang sudah berhasil melakukan login
-	return token.Claims.(jwt.MapClaims), nil
+	res = token.Claims.(jwt.MapClaims)
+
+	return
 }

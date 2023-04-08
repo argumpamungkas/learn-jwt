@@ -2,6 +2,7 @@ package router
 
 import (
 	"DTS/Chapter-3/sesi/sesi2-go-jwt/controllers"
+	"DTS/Chapter-3/sesi/sesi2-go-jwt/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,13 @@ func StartApp() *gin.Engine {
 		userRouter.POST("/register", controllers.UserRegister)
 
 		userRouter.POST("/login", controllers.UserLogin)
+	}
+
+	productRouter := r.Group("/products")
+	{
+		// sebelum melakukan seluruh endpoint, maka harus melewati autentikasi terlebih dahulu atau pengecekan token
+		productRouter.Use(middlewares.Authentication())
+		productRouter.POST("/", controllers.CreateProduct)
 	}
 
 	return r

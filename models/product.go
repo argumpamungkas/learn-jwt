@@ -9,9 +9,9 @@ import (
 
 type Product struct {
 	GormModel
-	Title       string `json:"title" form:"title" valid:"required-Title of your product is required"`
-	Desceiption string `json:"description" form:"description" valid:"required-Description of your product is required"`
-	UserID      uint
+	Title       string `json:"title" form:"title" valid:"required~Title of your product is required"`
+	Description string `json:"description" form:"description" valid:"required~Description of your product is required"`
+	UserID      uint   `json:"user_id"`
 	User        *User
 }
 
@@ -22,7 +22,7 @@ func (u *Product) TableName() string {
 func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
 	_, err = govalidator.ValidateStruct(p)
 	if err != nil {
-		log.Fatal("error pada before create product")
+		log.Println("error pada before create product")
 		return
 	}
 
@@ -33,7 +33,7 @@ func (p *Product) BeforeCreate(tx *gorm.DB) (err error) {
 func (p *Product) BeforeUpdate(tx *gorm.DB) (err error) {
 	_, err = govalidator.ValidateStruct(p)
 	if err != nil {
-		log.Fatal("error pada before update product")
+		log.Println("error pada before update product")
 		return
 	}
 
