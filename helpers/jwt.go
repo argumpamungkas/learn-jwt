@@ -3,12 +3,13 @@ package helpers
 import (
 	"errors"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	jwt "github.com/golang-jwt/jwt/v5"
 )
+
+var SECRET_KEY = "secretkey"
 
 func GenerateToken(id uint, email string) (res string, err error) {
 
@@ -28,7 +29,7 @@ func GenerateToken(id uint, email string) (res string, err error) {
 	// jwt/parse.SignedString adalah method dari struct *jwt.token. method ini digunakan untuk parsing token menjadi sebuah string panjang
 	// yang nantinya akan dikirimkan oleh server kepada client. method ini menerima satu param yaitu secret key. Secret key data yg sangat
 	// kredensial karena akan digunakan untuk autentikasi token.
-	res, err = parseToken.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	res, err = parseToken.SignedString([]byte(SECRET_KEY))
 	if err != nil {
 		log.Println("error signed token")
 		return
@@ -63,7 +64,7 @@ func VerifyToken(c *gin.Context) (res interface{}, err error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errResponse
 		}
-		return []byte(os.Getenv("SECRET_KEY")), nil
+		return []byte(SECRET_KEY), nil
 	})
 
 	// memeriksa apakah saat mengcasting claim tokennya menjadi tipe data jwt.MapClaims menghasilkan error atau tidak
